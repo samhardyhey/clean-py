@@ -2,10 +2,17 @@ from json import dump, load
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool
 from pathlib import Path
-from subprocess import PIPE, Popen, run
-from isort import SortImports
+from subprocess import run
+
 from autoflake import fix_code
-from black import format_str, format_file_contents, FileMode, DEFAULT_LINE_LENGTH, PY36_VERSIONS
+from black import (
+    DEFAULT_LINE_LENGTH,
+    PY36_VERSIONS,
+    FileMode,
+    NothingChanged,
+    format_file_contents,
+)
+from isort import SortImports
 
 pool = Pool(cpu_count())
 
@@ -33,8 +40,12 @@ def clean_python_code(python_source, isort=True, black=True, autoflake=True):
             is_pyi=False,
             string_normalization=True,
         )
-        formatted_source = format_file_contents(
-            formatted_source, fast=True, mode=mode)
+        try:
+            formatted_source = format_file_contents(
+                formatted_source, fast=True, mode=mode
+            )
+        except NothingChanged:
+            pass
     return formatted_source
 
 
@@ -55,14 +66,12 @@ def clear_ipynb_output(ipynb_file_path):
 def clean_ipynb_cell(cell_dict):
     # clean a single cell within a jupyter notebook
     if cell_dict["cell_type"] == "code":
-        clean_lines = clean_python_code(
-            "".join(cell_dict["source"])).split("\n")
+        clean_lines = clean_python_code("".join(cell_dict["source"])).split("\n")
 
         if len(clean_lines) == 1 and clean_lines[0] == "":
             clean_lines = []
         else:
-            clean_lines[:-1] = [clean_line +
-                                "\n" for clean_line in clean_lines[:-1]]
+            clean_lines[:-1] = [clean_line + "\n" for clean_line in clean_lines[:-1]]
         cell_dict["source"] = clean_lines
         return cell_dict
     else:
