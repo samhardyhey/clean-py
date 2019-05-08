@@ -39,9 +39,14 @@ A full list of parameters can be found via:
 ```sh
 clean_ipynb --help
 ```
+### 3.0 Tests
+Via:
+```sh
+python -m pytest clean_ipynb/tests/
+```
 
 ### Todo
-* **Unit tests.** Null parameter, invalid parameter edge cases etc.
+* **Unit tests.** Expand and improve. 
 * **Reimplement sub-command arg parsing.** Parse specific black/autoflake/isort args to main CLI.
 * **Remove subprocess calls.** Reach into subprograms, natively use without subprocess calls.
 * **Parameterise clear notebook.** As an explicit CLI arg.
