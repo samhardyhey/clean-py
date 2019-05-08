@@ -54,6 +54,5 @@ def main(path, py=True, ipynb=True, autoflake=True, isort=True, black=True):
             if ipynb and path.suffix == ".ipynb":
                 clean_ipynb(path, autoflake, isort, black)
 
-
 def main_wrapper():
     plac.call(main)
