@@ -66,14 +66,21 @@ def clear_ipynb_output(ipynb_file_path):
 def clean_ipynb_cell(cell_dict):
     # clean a single cell within a jupyter notebook
     if cell_dict["cell_type"] == "code":
-        clean_lines = clean_python_code("".join(cell_dict["source"])).split("\n")
+        try:
+            clean_lines = clean_python_code("".join(cell_dict["source"])).split("\n")
 
-        if len(clean_lines) == 1 and clean_lines[0] == "":
-            clean_lines = []
-        else:
-            clean_lines[:-1] = [clean_line + "\n" for clean_line in clean_lines[:-1]]
-        cell_dict["source"] = clean_lines
-        return cell_dict
+            if len(clean_lines) == 1 and clean_lines[0] == "":
+                clean_lines = []
+            else:
+                clean_lines[:-1] = [
+                    clean_line + "\n" for clean_line in clean_lines[:-1]
+                ]
+            cell_dict["source"] = clean_lines
+            return cell_dict
+
+        except:
+            # return original cell dict otherwise
+            return cell_dict
     else:
         return cell_dict
 
