@@ -17,18 +17,30 @@ from isort import SortImports
 pool = Pool(cpu_count())
 
 
-def clean_python_code(python_source, isort=True, black=True, autoflake=True):
+def clean_python_code(
+    python_source, isort=True, black=True, autoflake=True, is_notebook_cell=False
+):
     # run source code string through autoflake, isort, and black
     formatted_source = python_source
 
     if autoflake:
-        formatted_source = fix_code(
-            formatted_source,
-            expand_star_imports=True,
-            remove_all_unused_imports=True,
-            remove_duplicate_keys=True,
-            remove_unused_variables=True,
-        )
+        if is_notebook_cell:
+            # do not remove unused imports (RE: notebook cell dependencies)
+            formatted_source = fix_code(
+                formatted_source,
+                expand_star_imports=True,
+                remove_all_unused_imports=False,
+                remove_duplicate_keys=True,
+                remove_unused_variables=True,
+            )
+        else:
+            formatted_source = fix_code(
+                formatted_source,
+                expand_star_imports=True,
+                remove_all_unused_imports=True,
+                remove_duplicate_keys=True,
+                remove_unused_variables=True,
+            )
 
     if isort:
         formatted_source = SortImports(file_contents=formatted_source).output
@@ -67,7 +79,9 @@ def clean_ipynb_cell(cell_dict):
     # clean a single cell within a jupyter notebook
     if cell_dict["cell_type"] == "code":
         try:
-            clean_lines = clean_python_code("".join(cell_dict["source"])).split("\n")
+            clean_lines = clean_python_code(
+                "".join(cell_dict["source"]), is_notebook_cell=True
+            ).split("\n")
 
             if len(clean_lines) == 1 and clean_lines[0] == "":
                 clean_lines = []
