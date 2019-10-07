@@ -16,6 +16,42 @@ from isort import SortImports
 
 pool = Pool(cpu_count())
 
+def remove_duplicate_cells(cells):
+    cell_set_strings = []
+    cell_set = []
+    for e in cells:
+        if e["source"] in cell_set_strings:
+            continue
+        else:
+            cell_set_strings.append(e["source"])
+            cell_set.append(e)
+    return cell_set
+
+
+def remove_empty_cells(cells):
+    cell_set = []
+    for e in cells:
+        if len(e["source"]) <= 2:
+            continue
+        else:
+            cell_set.append(e)
+    return cell_set
+
+
+def remove_magics(source):
+    # check for '%' in first token of each line
+    non_magic_source = []
+    # magics, as well as source queries
+    invalid_source = ["%", "?"]
+    for e in source.split("\n"):
+        if len(e) == 0:
+            continue
+        if e[0] in invalid_source:
+            continue
+        else:
+            non_magic_source.append(e)
+    return "\n".join(non_magic_source)
+
 
 def clean_python_code(
     python_source, isort=True, black=True, autoflake=True, is_notebook_cell=False
@@ -60,6 +96,17 @@ def clean_python_code(
             pass
     return formatted_source
 
+def create_file(file_path, contents):
+    file_path.touch()
+    file_path.open("w", encoding="utf-8").write(contents)
+
+def clean_py(py_file_path, autoflake=True, isort=True, black=True):
+    # load, clean and write .py source, write cleaned file back to disk
+    with open(py_file_path, "r") as file:
+        source = file.read()
+
+    clean_lines = clean_python_code("".join(source))
+    create_file(Path(py_file_path), clean_lines)
 
 def clear_ipynb_output(ipynb_file_path):
     # clear cell outputs, reset cell execution count of each cell in a jupyer notebook
@@ -73,7 +120,6 @@ def clear_ipynb_output(ipynb_file_path):
         ),
         check=True,
     )
-
 
 def clean_ipynb_cell(cell_dict):
     # clean a single cell within a jupyter notebook
@@ -110,23 +156,9 @@ def clean_ipynb(
         ipynb_dict = load(ipynb_file)
 
     # mulithread the map operation
-    processed_cells = pool.map(clean_ipynb_cell, ipynb_dict["cells"])
+    processed_cells = pool.map(clean_py_cell, ipynb_dict["cells"])
     ipynb_dict["cells"] = processed_cells
 
     with open(ipynb_file_path, "w") as ipynb_file:
         dump(ipynb_dict, ipynb_file, indent=1)
         ipynb_file.write("\n")
-
-
-def create_file(file_path, contents):
-    file_path.touch()
-    file_path.open("w", encoding="utf-8").write(contents)
-
-
-def clean_py(py_file_path, autoflake=True, isort=True, black=True):
-    # load, clean and write .py source, write cleaned file back to disk
-    with open(py_file_path, "r") as file:
-        source = file.read()
-
-    clean_lines = clean_python_code("".join(source))
-    create_file(Path(py_file_path), clean_lines)

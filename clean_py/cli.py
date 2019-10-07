@@ -4,7 +4,7 @@ from pathlib import Path
 import plac
 from wasabi import Printer
 
-from .clean_ipynb import clean_ipynb, clean_py
+from .clean_py import clean_ipynb, clean_py
 
 msg = Printer()
 

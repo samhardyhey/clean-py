@@ -1,4 +1,4 @@
-from clean_ipynb import clean_python_code
+from clean_py import clean_python_code
 
 
 def test_clean_source_apply_all(black_playground_template_input, apply_all):
