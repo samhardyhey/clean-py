@@ -48,11 +48,11 @@ def main(path, py=True, ipynb=True, autoflake=True, isort=True, black=True):
             # valid extensions
             raise ValueError("Ensure valid .py or .ipynb path is provided")
 
-            if py and path.suffix == ".py":
-                clean_py(path, autoflake, isort, black)
+        if py and path.suffix == ".py":
+            clean_py(path, autoflake, isort, black)
 
-            if ipynb and path.suffix == ".ipynb":
-                clean_ipynb(path, autoflake, isort, black)
+        if ipynb and path.suffix == ".ipynb":
+            clean_ipynb(path, autoflake, isort, black)
 
 
 def main_wrapper():
