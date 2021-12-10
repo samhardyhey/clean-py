@@ -156,7 +156,7 @@ def clean_ipynb(
         ipynb_dict = load(ipynb_file)
 
     # mulithread the map operation
-    processed_cells = pool.map(clean_py_cell, ipynb_dict["cells"])
+    processed_cells = pool.map(clean_ipynb_cell, ipynb_dict["cells"])
     ipynb_dict["cells"] = processed_cells
 
     with open(ipynb_file_path, "w") as ipynb_file:
