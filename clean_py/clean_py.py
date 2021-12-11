@@ -7,7 +7,6 @@ from subprocess import run
 from autoflake import fix_code
 from black import (
     DEFAULT_LINE_LENGTH,
-    PY36_VERSIONS,
     FileMode,
     NothingChanged,
     format_file_contents,
@@ -83,7 +82,6 @@ def clean_python_code(
 
     if black:
         mode = FileMode(
-            target_versions=PY36_VERSIONS,
             line_length=DEFAULT_LINE_LENGTH,
             is_pyi=False,
             string_normalization=True,
