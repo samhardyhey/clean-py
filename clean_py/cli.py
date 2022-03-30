@@ -26,7 +26,7 @@ def main(path, py=True, ipynb=True, autoflake=True, isort=True, black=True):
         # recursively apply to all .py source within dir
         msg.info(f"Recursively cleaning directory: {path}")
         if py:
-            for e in glob.iglob(path.as_posix() + "/**/*.py", recursive=True):
+            for e in glob.iglob(f"{path.as_posix()}/**/*.py", recursive=True):
                 try:
                     msg.info(f"Cleaning file: {e}")
                     clean_py(e, autoflake, isort, black)
@@ -34,7 +34,7 @@ def main(path, py=True, ipynb=True, autoflake=True, isort=True, black=True):
                     msg.fail(f"Unable to clean file: {e}")
         if ipynb:
             # recursively apply to all .ipynb source within dir
-            for e in glob.iglob(path.as_posix() + "/**/*.ipynb", recursive=True):
+            for e in glob.iglob(f"{path.as_posix()}/**/*.ipynb", recursive=True):
                 try:
                     msg.info(f"Cleaning file: {e}")
                     clean_ipynb(e, autoflake, isort, black)
@@ -47,12 +47,6 @@ def main(path, py=True, ipynb=True, autoflake=True, isort=True, black=True):
         if path.suffix not in [".py", ".ipynb"]:
             # valid extensions
             raise ValueError("Ensure valid .py or .ipynb path is provided")
-
-            if py and path.suffix == ".py":
-                clean_py(path, autoflake, isort, black)
-
-            if ipynb and path.suffix == ".ipynb":
-                clean_ipynb(path, autoflake, isort, black)
 
 
 def main_wrapper():
