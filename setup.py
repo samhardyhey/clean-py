@@ -9,5 +9,15 @@ setup(
     packages=find_packages(),
     entry_points={"console_scripts": ["clean_py=clean_py.cli:main_wrapper"]},
     python_requires=">=3.6",
-    install_requires=("black", "wasabi", "isort", "jupyter", "autoflake", "plac", "jupyter_contrib_nbextensions", "pytest", "isort==4.3.21"),
+    install_requires=(
+        "black",
+        "wasabi",
+        "isort",
+        "jupyter",
+        "autoflake",
+        "plac",
+        "jupyter_contrib_nbextensions",
+        "pytest",
+        "isort==4.3.21",
+    ),
 )
