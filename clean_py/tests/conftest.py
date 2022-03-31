@@ -1,11 +1,15 @@
 import os
 import sys
+from pathlib import Path
 
 import pytest
 
-test_dir = os.path.dirname(os.path.realpath(__file__))
-app_dir = os.path.realpath(os.path.join(test_dir, "../"))
-sys.path.append(app_dir)
+
+def pytest_configure():
+    pytest.test_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+    pytest.file_dir = pytest.test_dir / "test_files"
+    pytest.example_notebook = pytest.file_dir / "example_notebook.ipynb"
+    pytest.example_script = pytest.file_dir / "example_script.py"
 
 
 @pytest.fixture
@@ -56,7 +60,7 @@ regular_formatting = [
 
 @pytest.fixture
 def apply_all():
-    return """x = {"a": 37, "b": 42, "c": 927}\n\nx = 123456789.123456789e123456789\n\nif (\n    very_long_variable_name is not None\n    and very_long_variable_name.field > 0\n    or very_long_variable_name.is_debug\n):\n    z = "hello " + "world"\nelse:\n    world = "world"\n    a = "hello {}".format(world)\n    f = rf"hello {world}"\nif this and that:\n    y = "hello " "world"  # FIXME: https://github.com/python/black/issues/26\n\n\nclass Foo(object):\n    def f(self):\n        return 37 * -2\n\n    def g(self, x, y=42):\n        return y\n\n\ndef f(a: List[int]):\n    return 37 - a[42 - u : y ** 3]\n\n\ndef very_important_function(\n    template: str, *variables, file: os.PathLike, debug: bool = False\n):\n    with open(file, "w") as f:\n        ...\n\n\n# fmt: off\ncustom_formatting = [\n    0,  1,  2,\n    3,  4,  5,\n    6,  7,  8,\n]\n# fmt: on\nregular_formatting = [0, 1, 2, 3, 4, 5, 6, 7, 8]\n"""
+    return """x = {"a": 37, "b": 42, "c": 927}\n\nx = 123456789.123456789e123456789\n\nif (\n    very_long_variable_name is not None\n    and very_long_variable_name.field > 0\n    or very_long_variable_name.is_debug\n):\n    z = "hello " + "world"\nelse:\n    world = "world"\n    a = "hello {}".format(world)\n    f = rf"hello {world}"\nif this and that:\n    y = "hello " "world"  # FIXME: https://github.com/python/black/issues/26\n\n\nclass Foo(object):\n    def f(self):\n        return 37 * -2\n\n    def g(self, x, y=42):\n        return y\n\n\ndef f(a: List[int]):\n    return 37 - a[42 - u : y**3]\n\n\ndef very_important_function(\n    template: str,\n    *variables,\n    file: os.PathLike,\n    debug: bool = False,\n):\n    with open(file, "w") as f:\n        ...\n\n\n# fmt: off\ncustom_formatting = [\n    0,  1,  2,\n    3,  4,  5,\n    6,  7,  8,\n]\n# fmt: on\nregular_formatting = [\n    0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7,\n    8,\n]\n"""
 
 
 @pytest.fixture
@@ -66,7 +70,7 @@ def isort_only():
 
 @pytest.fixture
 def black_only():
-    return """from seven_dwwarfs import Grumpy, Happy, Sleepy, Bashful, Sneezy, Dopey, Doc\nimport sklearn\nfrom glob import glob\n\nx = {"a": 37, "b": 42, "c": 927}\n\nx = 123456789.123456789e123456789\n\nif (\n    very_long_variable_name is not None\n    and very_long_variable_name.field > 0\n    or very_long_variable_name.is_debug\n):\n    z = "hello " + "world"\nelse:\n    world = "world"\n    a = "hello {}".format(world)\n    f = rf"hello {world}"\nif this and that:\n    y = "hello " "world"  # FIXME: https://github.com/python/black/issues/26\n\n\nclass Foo(object):\n    def f(self):\n        return 37 * -2\n\n    def g(self, x, y=42):\n        return y\n\n\ndef f(a: List[int]):\n    return 37 - a[42 - u : y ** 3]\n\n\ndef very_important_function(\n    template: str, *variables, file: os.PathLike, debug: bool = False\n):\n    with open(file, "w") as f:\n        ...\n\n\n# fmt: off\ncustom_formatting = [\n    0,  1,  2,\n    3,  4,  5,\n    6,  7,  8,\n]\n# fmt: on\nregular_formatting = [0, 1, 2, 3, 4, 5, 6, 7, 8]\n"""
+    return """from seven_dwwarfs import Grumpy, Happy, Sleepy, Bashful, Sneezy, Dopey, Doc\nimport sklearn\nfrom glob import glob\n\nx = {"a": 37, "b": 42, "c": 927}\n\nx = 123456789.123456789e123456789\n\nif (\n    very_long_variable_name is not None\n    and very_long_variable_name.field > 0\n    or very_long_variable_name.is_debug\n):\n    z = "hello " + "world"\nelse:\n    world = "world"\n    a = "hello {}".format(world)\n    f = rf"hello {world}"\nif this and that:\n    y = "hello " "world"  # FIXME: https://github.com/python/black/issues/26\n\n\nclass Foo(object):\n    def f(self):\n        return 37 * -2\n\n    def g(self, x, y=42):\n        return y\n\n\ndef f(a: List[int]):\n    return 37 - a[42 - u : y**3]\n\n\ndef very_important_function(\n    template: str,\n    *variables,\n    file: os.PathLike,\n    debug: bool = False,\n):\n    with open(file, "w") as f:\n        ...\n\n\n# fmt: off\ncustom_formatting = [\n    0,  1,  2,\n    3,  4,  5,\n    6,  7,  8,\n]\n# fmt: on\nregular_formatting = [\n    0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7,\n    8,\n]\n"""
 
 
 @pytest.fixture
