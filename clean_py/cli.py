@@ -1,53 +1,56 @@
+import argparse
 import glob
+import logging
 from pathlib import Path
-
-import plac
-from wasabi import Printer
 
 from .clean_py import clean_ipynb, clean_py
 
-msg = Printer()
-
-
-@plac.annotations(
-    path=("File or dir to clean", "positional", None, str),
-    py=("Apply to .py source", "option", None, bool),
-    ipynb=("Apply to .ipynb source", "option", None, bool),
-    autoflake=("Apply autoflake to source", "option", None, bool),
-    isort=("Apply isort to source", "option", None, bool),
-    black=("Apply black to source", "option", None, bool),
+# log outputs
+logging.basicConfig(level=logging.INFO)
+parser = argparse.ArgumentParser(
+    prog="clean_py",
+    description="Auto-lint .py and .ipynb files with autoflake, isort and black",
 )
-def main(path, py=True, ipynb=True, autoflake=True, isort=True, black=True):
-    path = Path(path)
+
+logging.error
+
+parser.add_argument("path", type=str, help="File or dir to clean")
+parser.add_argument("--py", type=bool, default=True, required=False, help="Apply to .py source")
+parser.add_argument("--ipynb", type=bool, default=True, help="Apply to .ipynb source")
+parser.add_argument("--autoflake", type=bool, default=True, help="Apply autoflake to source")
+parser.add_argument("--isort", type=bool, default=True, help="Apply isort to source")
+parser.add_argument("--black", type=bool, default=True, help="Apply black to source")
+args = parser.parse_args()
+
+
+def main():
+    logging.info(args.py)
+    path = Path(args.path)
     if not path.exists():
         raise ValueError("Provide a valid path to a file or directory")
 
     if path.is_dir():
         # recursively apply to all .py source within dir
-        msg.info(f"Recursively cleaning directory: {path}")
-        if py:
+        logging.info(f"Recursively cleaning directory: {path}")
+        if args.py:
             for e in glob.iglob(f"{path.as_posix()}/**/*.py", recursive=True):
                 try:
-                    msg.info(f"Cleaning file: {e}")
-                    clean_py(e, autoflake, isort, black)
+                    logging.info(f"Cleaning file: {e}")
+                    clean_py(e, args.autoflake, args.isort, args.black)
                 except:
-                    msg.fail(f"Unable to clean file: {e}")
-        if ipynb:
+                    logging.error(f"Unable to clean file: {e}")
+        if args.ipynb:
             # recursively apply to all .ipynb source within dir
             for e in glob.iglob(f"{path.as_posix()}/**/*.ipynb", recursive=True):
                 try:
-                    msg.info(f"Cleaning file: {e}")
-                    clean_ipynb(e, autoflake, isort, black)
+                    logging.info(f"Cleaning file: {e}")
+                    clean_ipynb(e, args.autoflake, args.isort, args.black)
                 except:
-                    msg.fail(f"Unable to clean file: {e}")
+                    logging.error(f"Unable to clean file: {e}")
 
     if path.is_file():
-        msg.info(f"Cleaning file: {path}")
+        logging.info(f"Cleaning file: {path}")
 
         if path.suffix not in [".py", ".ipynb"]:
             # valid extensions
             raise ValueError("Ensure valid .py or .ipynb path is provided")
-
-
-def main_wrapper():
-    plac.call(main)
