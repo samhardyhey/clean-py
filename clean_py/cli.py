@@ -5,15 +5,11 @@ from pathlib import Path
 
 from .clean_py import clean_ipynb, clean_py
 
-# log outputs
 logging.basicConfig(level=logging.INFO)
 parser = argparse.ArgumentParser(
     prog="clean_py",
     description="Auto-lint .py and .ipynb files with autoflake, isort and black",
 )
-
-logging.error
-
 parser.add_argument("path", type=str, help="File or dir to clean")
 parser.add_argument("--py", type=bool, default=True, required=False, help="Apply to .py source")
 parser.add_argument("--ipynb", type=bool, default=True, help="Apply to .ipynb source")
@@ -24,7 +20,6 @@ args = parser.parse_args()
 
 
 def main():
-    logging.info(args)
     path = Path(args.path)
     if not path.exists():
         raise ValueError("Provide a valid path to a file or directory")

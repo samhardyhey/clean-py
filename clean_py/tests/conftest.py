@@ -1,11 +1,15 @@
 import os
 import sys
+from pathlib import Path
 
 import pytest
 
-test_dir = os.path.dirname(os.path.realpath(__file__))
-app_dir = os.path.realpath(os.path.join(test_dir, "../"))
-sys.path.append(app_dir)
+
+def pytest_configure():
+    pytest.test_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+    pytest.file_dir = pytest.test_dir / "test_files"
+    pytest.example_notebook = pytest.file_dir / "example_notebook.ipynb"
+    pytest.example_script = pytest.file_dir / "example_script.py"
 
 
 @pytest.fixture
