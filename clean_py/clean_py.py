@@ -6,7 +6,12 @@ from pathlib import Path
 from subprocess import run
 
 from autoflake import fix_code
-from black import DEFAULT_LINE_LENGTH, FileMode, NothingChanged, format_file_contents
+from black import (
+    DEFAULT_LINE_LENGTH,
+    FileMode,
+    NothingChanged,
+    format_file_contents,
+)
 from isort import SortImports
 
 pool = Pool(cpu_count())
@@ -135,7 +140,7 @@ def clean_ipynb(ipynb_file_path, clear_output=True, autoflake=True, isort=True, 
         ipynb_dict = load(ipynb_file)
 
     # mulithread the map operation
-    processed_cells = pool.map(clean_python_code, ipynb_dict["cells"])
+    processed_cells = pool.map(clean_ipynb_cell, ipynb_dict["cells"])
     ipynb_dict["cells"] = processed_cells
 
     with open(ipynb_file_path, "w") as ipynb_file:
