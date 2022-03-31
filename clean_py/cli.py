@@ -24,7 +24,7 @@ args = parser.parse_args()
 
 
 def main():
-    logging.info(args.py)
+    logging.info(args)
     path = Path(args.path)
     if not path.exists():
         raise ValueError("Provide a valid path to a file or directory")
@@ -49,8 +49,19 @@ def main():
                     logging.error(f"Unable to clean file: {e}")
 
     if path.is_file():
-        logging.info(f"Cleaning file: {path}")
+        if args.py and path.suffix == ".py":
+            try:
+                logging.info(f"Cleaning file: {path}")
+                clean_py(path, args.autoflake, args.isort, args.black)
+            except:
+                logging.error(f"Unable to clean file: {path}")
 
-        if path.suffix not in [".py", ".ipynb"]:
-            # valid extensions
-            raise ValueError("Ensure valid .py or .ipynb path is provided")
+        elif args.ipynb and path.suffix == ".ipynb":
+            try:
+                logging.info(f"Cleaning file: {path}")
+                clean_ipynb(path, args.autoflake, args.isort, args.black)
+            except:
+                logging.error(f"Unable to clean file: {path}")
+
+        else:
+            raise ValueError(f"Unable to clean {path} with args! Double check your args..")
