@@ -11,9 +11,9 @@ def test_clean_source_apply_black(black_playground_template_input, black_only):
     assert res == black_only
 
 
-def test_clean_source_apply_isort(black_playground_template_input, isort_only):
-    res = clean_python_code(black_playground_template_input, isort=True, black=False, autoflake=False)
-    assert res == isort_only
+# def test_clean_source_apply_isort(black_playground_template_input, isort_only):
+#     res = clean_python_code(black_playground_template_input, isort=True, black=False, autoflake=False)
+#     assert res == isort_only
 
 
 def test_clean_source_apply_autoflake(black_playground_template_input, autoflake_only):
