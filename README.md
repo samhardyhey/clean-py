@@ -38,7 +38,8 @@ pytest ./pytest
 ```
 
 ## 4.0 Packaging
-Create dist `.whl` and `.tar` archives via:
+- Update version within `setup.py`
+- Create dist `.whl` and `.tar` archives via:
 ```py
 python setup.py sdist bdist_wheel
 ```
