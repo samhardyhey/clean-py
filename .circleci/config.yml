@@ -7,4 +7,4 @@ jobs:
     steps:
       - checkout
       - run: pip install tox
-      - run: cd ./project/clean_py && run tox
+      - run: cd ./project && run tox
