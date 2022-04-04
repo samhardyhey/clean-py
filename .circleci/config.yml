@@ -2,9 +2,10 @@ version: 2.1
 
 jobs:
   build:
+    working_directory: ~/clean_py
     docker:
       - image: cimg/python:3.10.4
     steps:
       - checkout
       - run: pip install tox
-      - run: cd ./project && run tox
+      # - run: cd ./project && run tox
