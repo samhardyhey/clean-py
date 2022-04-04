@@ -1,9 +1,12 @@
 version: 2.1
 
 jobs:
-  build:
+  config:
     docker:
       - image: cimg/python:3.10.4
     steps:
       - checkout
-      - run: python tox
+      - name: install tox
+      - run: pip install tox
+      - name: run tox
+      - run: cd ./project && run tox
