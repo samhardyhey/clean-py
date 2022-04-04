@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  config:
+  test:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -10,3 +10,9 @@ jobs:
       - run: pip install tox
       - name: run tox
       - run: cd ./project && run tox
+
+workflows:
+  version: 1.0.0
+  test:
+    jobs:
+      - test
