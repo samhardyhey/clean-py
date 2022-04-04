@@ -6,9 +6,7 @@ jobs:
       - image: cimg/python:3.10.4
     steps:
       - checkout
-      - name: install tox
       - run: pip install tox
-      - name: run tox
       - run: cd ./project && run tox
 
 workflows:
