@@ -1,16 +1,16 @@
 from setuptools import find_packages, setup
 
-# with open("./requirements.txt") as f:
-#     REQUIREMENTS = f.readlines()
+with open("./requirements.txt") as f:
+    REQUIREMENTS = f.readlines()
 
-REQUIREMENTS = [
-    "black==22.3.0",
-    "isort==4.3.21",
-    "jupyter==1.0.0",
-    "autoflake==1.4",
-    "jupyter_contrib_nbextensions==0.5.1",
-    "pytest==7.0.1",
-]
+# REQUIREMENTS = [
+#     "black==22.3.0",
+#     "isort==4.3.21",
+#     "jupyter==1.0.0",
+#     "autoflake==1.4",
+#     "jupyter_contrib_nbextensions==0.5.1",
+#     "pytest==7.0.1",
+# ]
 
 setup(
     name="clean_py",

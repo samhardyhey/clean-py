@@ -9,4 +9,4 @@ jobs:
       - checkout
       - run: pip install tox
       # **failing here
-      - run: cd ./project && tox
+      - run: cd ./clean_py && tox
