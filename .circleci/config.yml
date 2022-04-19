@@ -1,12 +1,15 @@
 version: 2.1
 
 jobs:
-  build:
+  test:
     working_directory: ~/clean_py
     docker:
       - image: cimg/python:3.10.4
     steps:
       - checkout
       - run: pip install tox
-      # **failing here
       - run: cd ./clean_py && tox
+workflows:
+  test_and_build:
+    jobs:
+      - test
