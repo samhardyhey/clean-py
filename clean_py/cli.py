@@ -32,7 +32,7 @@ def main():
                 try:
                     logging.info(f"Cleaning file: {e}")
                     clean_py(e, args.autoflake, args.isort, args.black)
-                except:
+                except Exception:
                     logging.error(f"Unable to clean file: {e}")
         if args.ipynb:
             # recursively apply to all .ipynb source within dir
@@ -40,7 +40,7 @@ def main():
                 try:
                     logging.info(f"Cleaning file: {e}")
                     clean_ipynb(e, args.autoflake, args.isort, args.black)
-                except:
+                except Exception:
                     logging.error(f"Unable to clean file: {e}")
 
     if path.is_file():
@@ -48,14 +48,14 @@ def main():
             try:
                 logging.info(f"Cleaning file: {path}")
                 clean_py(path, args.autoflake, args.isort, args.black)
-            except:
+            except Exception:
                 logging.error(f"Unable to clean file: {path}")
 
         elif args.ipynb and path.suffix == ".ipynb":
             try:
                 logging.info(f"Cleaning file: {path}")
                 clean_ipynb(path, args.autoflake, args.isort, args.black)
-            except:
+            except Exception:
                 logging.error(f"Unable to clean file: {path}")
 
         else:

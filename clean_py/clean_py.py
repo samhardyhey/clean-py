@@ -6,12 +6,7 @@ from pathlib import Path
 from subprocess import run
 
 from autoflake import fix_code
-from black import (
-    DEFAULT_LINE_LENGTH,
-    FileMode,
-    NothingChanged,
-    format_file_contents,
-)
+from black import DEFAULT_LINE_LENGTH, FileMode, NothingChanged, format_file_contents
 from isort import SortImports
 
 pool = Pool(cpu_count())
@@ -126,7 +121,7 @@ def clean_ipynb_cell(cell_dict):
         cell_dict["source"] = clean_lines
         return cell_dict
 
-    except:
+    except Exception:
         # return original cell dict otherwise
         return cell_dict
 
