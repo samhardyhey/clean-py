@@ -32,9 +32,14 @@ clean_py <source/dir> -py True -isort True -black False -autoflake False
 ```
 
 ## 3.0 Tests
-Via:
+Simple pytesting via:
 ```sh
 pytest ./pytest
+```
+
+Multi-venv tox testing via:
+```sh
+tox
 ```
 
 ## 4.0 Packaging
