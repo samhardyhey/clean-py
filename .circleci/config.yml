@@ -2,14 +2,28 @@ version: 2.1
 
 jobs:
   test:
-    working_directory: ~/clean_py
+    # working_directory: ~/clean_py
     docker:
       - image: cimg/python:3.10.4
     steps:
       - checkout
       - run: pip install tox
       - run: cd ./clean_py && tox
+
+  pypi_publish_test:
+    docker:
+      - image: cimg/python:3.10.4
+    steps:
+      - checkout
+      - run:
+          command: |
+            python setup.py sdist bdist_wheel
+            pip install twine
+            twine upload --repository testpypi dist/*
 workflows:
-  test_and_build:
+  test_build_deploy_pypi_test:
     jobs:
       - test
+      - pypi_publish_test:
+          requires:
+            - test
