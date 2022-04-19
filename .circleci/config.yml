@@ -2,7 +2,6 @@ version: 2.1
 
 jobs:
   test:
-    # working_directory: ~/clean_py
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -20,10 +19,34 @@ jobs:
             python setup.py sdist bdist_wheel
             pip install twine
             twine upload --repository testpypi dist/*
+  pypi_publish:
+    docker:
+      - image: cimg/python:3.10.4
+    steps:
+      - checkout
+      - run:
+          command: |
+            python setup.py sdist bdist_wheel
+            pip install twine
+            twine upload dist/*
 workflows:
-  test_build_deploy_pypi_test:
+  test_pypi_publish_test:
     jobs:
       - test
       - pypi_publish_test:
           requires:
             - test
+          filters:
+            branches:
+              only:
+                - dev
+  test_pypi_publish:
+    jobs:
+      - test
+      - pypi_publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
