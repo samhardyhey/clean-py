@@ -43,7 +43,11 @@ workflows:
                 - dev
   tests_pypi_publish_prod:
     jobs:
-      - tests
+      - tests:
+          filters:
+            branches:
+              only:
+                - master
       - pypi_publish_prod:
           requires:
             - tests
