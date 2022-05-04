@@ -33,20 +33,20 @@ workflows:
   # **all workflows currently running for every branch? filtering not working?
   tests_pypi_publish_mock:
     jobs:
-      - test
+      - tests
       - pypi_publish_mock:
           requires:
-            - test
+            - tests
           filters:
             branches:
               only:
                 - dev
   tests_pypi_publish_prod:
     jobs:
-      - test
+      - tests
       - pypi_publish_prod:
           requires:
-            - test
+            - tests
           filters:
             branches:
               only:
