@@ -16,7 +16,7 @@ REQUIREMENTS = [
 
 setup(
     name="clean_py",
-    version="0.4",
+    version="0.5",
     url="https://github.com/samhardyhey/clean-py",
     author="Sam Hardy",
     author_email="samhardyhey@gmail.com",
