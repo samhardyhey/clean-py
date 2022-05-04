@@ -1,7 +1,18 @@
 version: 2.1
 
+# YAML referencing to reduce job filter duplication
+dev_only: &dev_only
+  filters:
+    branches:
+      only: dev
+
+master_only: &master_only
+  filters:
+    branches:
+      only: master
+
 jobs:
-  test:
+  tests:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -9,7 +20,7 @@ jobs:
       - run: pip install tox
       - run: cd ./clean_py && tox
 
-  pypi_publish_test:
+  pypi_publish_mock:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -19,7 +30,7 @@ jobs:
             python setup.py sdist bdist_wheel
             pip install twine
             twine upload --repository testpypi dist/*
-  pypi_publish:
+  pypi_publish_prod:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -30,23 +41,19 @@ jobs:
             pip install twine
             twine upload dist/*
 workflows:
-  test_pypi_publish_test:
+  tests_pypi_publish_mock:
     jobs:
-      - test
-      - pypi_publish_test:
+      - tests:
+          <<: *dev_only
+      - pypi_publish_mock:
+          <<: *dev_only
           requires:
-            - test
-          filters:
-            branches:
-              only:
-                - dev
-  test_pypi_publish:
+            - tests
+  tests_pypi_publish_prod:
     jobs:
-      - test
-      - pypi_publish:
+      - tests:
+          <<: *master_only
+      - pypi_publish_prod:
+          <<: *master_only
           requires:
-            - test
-          filters:
-            branches:
-              only:
-                - master
+            - tests

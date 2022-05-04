@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from setuptools import find_packages, setup
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 REQUIREMENTS = [
     "black==22.3.0",
@@ -11,7 +16,7 @@ REQUIREMENTS = [
 
 setup(
     name="clean_py",
-    version="0.3",
+    version="0.5",
     url="https://github.com/samhardyhey/clean-py",
     author="Sam Hardy",
     author_email="samhardyhey@gmail.com",
@@ -19,4 +24,6 @@ setup(
     entry_points={"console_scripts": ["clean_py=clean_py.cli:main"]},
     python_requires=">=3.6",
     install_requires=REQUIREMENTS,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
 )
