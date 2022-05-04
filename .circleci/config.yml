@@ -30,6 +30,8 @@ jobs:
             pip install twine
             twine upload dist/*
 workflows:
+  # **all workflows currently running for every branch? filtering not working?
+  # **consider limiting twine uploads to master (redundnat test upload)
   test_pypi_publish_test:
     jobs:
       - test
