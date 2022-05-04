@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  test:
+  tests:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -9,7 +9,7 @@ jobs:
       - run: pip install tox
       - run: cd ./clean_py && tox
 
-  pypi_publish_test:
+  pypi_publish_mock:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -19,7 +19,7 @@ jobs:
             python setup.py sdist bdist_wheel
             pip install twine
             twine upload --repository testpypi dist/*
-  pypi_publish:
+  pypi_publish_prod:
     docker:
       - image: cimg/python:3.10.4
     steps:
@@ -31,21 +31,20 @@ jobs:
             twine upload dist/*
 workflows:
   # **all workflows currently running for every branch? filtering not working?
-  # **consider limiting twine uploads to master (redundnat test upload)
-  test_pypi_publish_test:
+  tests_pypi_publish_mock:
     jobs:
       - test
-      - pypi_publish_test:
+      - pypi_publish_mock:
           requires:
             - test
           filters:
             branches:
               only:
                 - dev
-  test_pypi_publish:
+  tests_pypi_publish_prod:
     jobs:
       - test
-      - pypi_publish:
+      - pypi_publish_prod:
           requires:
             - test
           filters:
