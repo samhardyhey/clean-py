@@ -1,5 +1,16 @@
 version: 2.1
 
+# YAML referencing to reduce job filter duplication
+dev_only: &dev_only
+  filters:
+    branches:
+      only: dev
+
+master_only: &master_only
+  filters:
+    branches:
+      only: master
+
 jobs:
   tests:
     docker:
@@ -33,25 +44,17 @@ workflows:
   # **all workflows currently running for every branch? filtering not working?
   tests_pypi_publish_mock:
     jobs:
-      - tests
+      - tests:
+          <<: *dev_only
       - pypi_publish_mock:
+          <<: *dev_only
           requires:
             - tests
-          filters:
-            branches:
-              only:
-                - dev
   tests_pypi_publish_prod:
     jobs:
       - tests:
-          filters:
-            branches:
-              only:
-                - master
+          <<: *master_only
       - pypi_publish_prod:
+          <<: *master_only
           requires:
             - tests
-          filters:
-            branches:
-              only:
-                - master
