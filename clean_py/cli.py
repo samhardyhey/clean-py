@@ -6,16 +6,26 @@ from pathlib import Path
 from .clean_py import clean_ipynb, clean_py
 
 logging.basicConfig(level=logging.INFO)
+
+
+def str_to_bool(value):
+    if value.lower() in {'false', 'f', '0', 'no', 'n'}:
+        return False
+    elif value.lower() in {'true', 't', '1', 'yes', 'y'}:
+        return True
+    raise ValueError(f'{value} is not a valid boolean value')
+
+
 parser = argparse.ArgumentParser(
     prog="clean_py",
     description="Auto-lint .py and .ipynb files with autoflake, isort and black",
 )
 parser.add_argument("path", type=str, help="File or dir to clean")
-parser.add_argument("--py", type=bool, default=True, required=False, help="Apply to .py source")
-parser.add_argument("--ipynb", type=bool, default=True, help="Apply to .ipynb source")
-parser.add_argument("--autoflake", type=bool, default=True, help="Apply autoflake to source")
-parser.add_argument("--isort", type=bool, default=True, help="Apply isort to source")
-parser.add_argument("--black", type=bool, default=True, help="Apply black to source")
+parser.add_argument("--py", type=str_to_bool, default=True, required=False, help="Apply to .py source")
+parser.add_argument("--ipynb", type=str_to_bool, default=True, help="Apply to .ipynb source")
+parser.add_argument("--autoflake", type=str_to_bool, default=True, help="Apply autoflake to source")
+parser.add_argument("--isort", type=str_to_bool, default=True, help="Apply isort to source")
+parser.add_argument("--black", type=str_to_bool, default=True, help="Apply black to source")
 args = parser.parse_args()
 
 
@@ -31,7 +41,12 @@ def main():
             for e in glob.iglob(f"{path.as_posix()}/**/*.py", recursive=True):
                 try:
                     logging.info(f"Cleaning file: {e}")
-                    clean_py(e, args.autoflake, args.isort, args.black)
+                    clean_py(
+                        py_file_path=e,
+                        autoflake=args.autoflake,
+                        isort=args.isort,
+                        black=args.black
+                    )
                 except Exception:
                     logging.error(f"Unable to clean file: {e}")
         if args.ipynb:
@@ -39,7 +54,13 @@ def main():
             for e in glob.iglob(f"{path.as_posix()}/**/*.ipynb", recursive=True):
                 try:
                     logging.info(f"Cleaning file: {e}")
-                    clean_ipynb(e, args.autoflake, args.isort, args.black)
+                    clean_ipynb(
+                        ipynb_file_path=e,
+                        clear_output=True,
+                        autoflake=args.autoflake,
+                        isort=args.isort,
+                        black=args.black
+                    )
                 except Exception:
                     logging.error(f"Unable to clean file: {e}")
 
@@ -47,14 +68,25 @@ def main():
         if args.py and path.suffix == ".py":
             try:
                 logging.info(f"Cleaning file: {path}")
-                clean_py(path, args.autoflake, args.isort, args.black)
+                clean_py(
+                    py_file_path=path,
+                    autoflake=args.autoflake,
+                    isort=args.isort,
+                    black=args.black
+                )
             except Exception:
                 logging.error(f"Unable to clean file: {path}")
 
         elif args.ipynb and path.suffix == ".ipynb":
             try:
                 logging.info(f"Cleaning file: {path}")
-                clean_ipynb(path, args.autoflake, args.isort, args.black)
+                clean_ipynb(
+                    ipynb_file_path=path,
+                    clear_output=True,
+                    autoflake=args.autoflake,
+                    isort=args.isort,
+                    black=args.black
+                )
             except Exception:
                 logging.error(f"Unable to clean file: {path}")
 

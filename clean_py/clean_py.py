@@ -1,4 +1,5 @@
 import contextlib
+from functools import partial
 from json import dump, load
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool
@@ -89,7 +90,12 @@ def clean_py(py_file_path, autoflake=True, isort=True, black=True):
     with open(py_file_path, "r") as file:
         source = file.read()
 
-    clean_lines = clean_python_code("".join(source))
+    clean_lines = clean_python_code(
+        "".join(source),
+        autoflake=autoflake,
+        isort=isort,
+        black=black
+    )
     create_file(Path(py_file_path), clean_lines)
 
 
@@ -107,12 +113,18 @@ def clear_ipynb_output(ipynb_file_path):
     )
 
 
-def clean_ipynb_cell(cell_dict):
+def clean_ipynb_cell(cell_dict, isort=True, black=True, autoflake=True):
     # clean a single cell within a jupyter notebook
     if cell_dict["cell_type"] != "code":
         return cell_dict
     try:
-        clean_lines = clean_python_code("".join(cell_dict["source"]), is_notebook_cell=True).split("\n")
+        clean_lines = clean_python_code(
+            "".join(cell_dict["source"]),
+            isort=isort,
+            black=black,
+            autoflake=autoflake,
+            is_notebook_cell=True
+        ).split("\n")
 
         if len(clean_lines) == 1 and clean_lines[0] == "":
             clean_lines = []
@@ -134,8 +146,15 @@ def clean_ipynb(ipynb_file_path, clear_output=True, autoflake=True, isort=True, 
     with open(ipynb_file_path) as ipynb_file:
         ipynb_dict = load(ipynb_file)
 
+    _clean_ipynb_cell = partial(
+        clean_ipynb_cell,
+        autoflake=autoflake,
+        isort=isort,
+        black=black
+    )
+
     # mulithread the map operation
-    processed_cells = pool.map(clean_ipynb_cell, ipynb_dict["cells"])
+    processed_cells = pool.map(_clean_ipynb_cell, ipynb_dict["cells"])
     ipynb_dict["cells"] = processed_cells
 
     with open(ipynb_file_path, "w") as ipynb_file:
