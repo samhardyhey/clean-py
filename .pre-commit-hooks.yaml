@@ -1,0 +1,7 @@
+- id: clean-jupyter
+  name: clean-jupyter
+  description: "Auto-lint .py and .ipynb files with autoflake, isort and black"
+  entry: clean_py
+  language: python
+  require_serial: true
+  types_or: [python, jupyter]
