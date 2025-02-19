@@ -11,9 +11,13 @@ parser = argparse.ArgumentParser(
     description="Auto-lint .py and .ipynb files with autoflake, isort and black",
 )
 parser.add_argument("path", type=str, help="File or dir to clean")
-parser.add_argument("--py", type=bool, default=True, required=False, help="Apply to .py source")
+parser.add_argument(
+    "--py", type=bool, default=True, required=False, help="Apply to .py source"
+)
 parser.add_argument("--ipynb", type=bool, default=True, help="Apply to .ipynb source")
-parser.add_argument("--autoflake", type=bool, default=True, help="Apply autoflake to source")
+parser.add_argument(
+    "--autoflake", type=bool, default=True, help="Apply autoflake to source"
+)
 parser.add_argument("--isort", type=bool, default=True, help="Apply isort to source")
 parser.add_argument("--black", type=bool, default=True, help="Apply black to source")
 args = parser.parse_args()
@@ -59,4 +63,6 @@ def main():
                 logging.error(f"Unable to clean file: {path}")
 
         else:
-            raise ValueError(f"Unable to clean {path} with args! Double check your args..")
+            raise ValueError(
+                f"Unable to clean {path} with args! Double check your args.."
+            )
