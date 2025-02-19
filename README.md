@@ -1,55 +1,62 @@
-## Clean Py
-### Overview
-A small CLI program designed to automatically lint ```.ipynb``` and ```.py``` source code. Tidy and remove redundant imports (via [autoflake](https://github.com/myint/autoflake)), sort imports (via [isort](https://github.com/timothycrosley/isort)), lint and format source code in a standardised way (via [black](https://github.com/ambv/black)). Additionally, clear all ```.ipynb``` cell outputs and execution counts. Forked from KwatMe's orginal [repo](https://github.com/KwatME/clean_ipynb).
+# Clean-Py 🧹
 
-### Install
-Via pip:
-```sh
+CLI tool for automated Python code cleanup and standardization. Formats both `.py` and `.ipynb` files using industry-standard tools.
+
+## Features
+- 🔄 Import optimization (autoflake)
+- 📝 Import sorting (isort)
+- ✨ Code formatting (black)
+- 📓 Notebook cleanup
+  - Clear cell outputs
+  - Reset execution counts
+  - Format code cells
+
+## Installation
+```bash
+# Via pip
 pip install clean-py
-```
 
-Or clone directly:
-```sh
+# Or from source
 git clone https://github.com/samhardyhey/clean_py
 cd clean_py
 pip install .
 ```
 
-### Usage
-Clean a single file:
-```sh
-clean_py a_single_notebook.ipynb
-clean_py a_single_script.py
+## Usage
+```bash
+# Clean single file
+clean_py notebook.ipynb
+clean_py script.py
+
+# Clean directory
+clean_py path/to/dir
+
+# Selective cleaning
+clean_py path/to/dir -py True -isort True -black False -autoflake False
 ```
 
-Or recurse within a input dir:
-```sh
-clean_py <input_dir>
-```
-
-Clean with specific features if necessary:
-```sh
-clean_py <input_dir> -py True -isort True -black False -autoflake False
-```
-
-### Tests
-Simple pytesting via:
-```sh
+## Development
+```bash
+# Run tests
 pytest
-```
 
-Multi-venv tox testing via:
-```sh
+# Multi-environment testing
 tox
-```
 
-### Dist
-- Update version within `setup.py`
-- Create dist `.whl` and `.tar` archives via:
-```py
+# Build distribution
 python setup.py sdist bdist_wheel
-```
-Push to main pypi repo via:
-```py
+
+# Upload to PyPI
 twine upload dist/*
 ```
+
+## Structure
+- 🔧 `clean_py/` # Core package
+  - `clean_py.py` # Main logic
+  - `cli.py` # Command interface
+  - `tests/` # Test suite
+
+## Credits
+Forked from [KwatMe's original repo](https://github.com/KwatME/clean_ipynb).
+
+*Note: Remember to update version in `setup.py` before distribution.*
