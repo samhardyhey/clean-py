@@ -6,6 +6,7 @@ jupyter==1.1.1
 jupyter_contrib_nbextensions==0.7.0
 pytest==8.3.5
 pytest-cov==4.1.0
+setuptools_scm==8.0.0
 
 # dev
 build==1.2.2.post1
