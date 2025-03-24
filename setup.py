@@ -1,17 +1,18 @@
 from pathlib import Path
+import re
 
 from setuptools import find_packages, setup
 
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
+# Read core dependencies from requirements.txt
 REQUIREMENTS = [
-    "black==22.3.0",
-    "isort==4.3.21",
-    "jupyter==1.0.0",
-    "autoflake==1.4",
-    "jupyter_contrib_nbextensions==0.5.1",
-    "pytest==7.0.1",
+    line.strip()
+    for line in (this_directory / "requirements.txt").read_text().splitlines()
+    if line.strip()
+    and not line.startswith("#")
+    and not re.match(r"^(tox|build|twine)", line.strip())
 ]
 
 setup(
