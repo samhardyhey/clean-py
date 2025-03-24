@@ -134,3 +134,7 @@ states/
 
 # dev
 *scratch*
+
+# Add src-specific patterns
+src/*.egg-info/
+src/*.egg

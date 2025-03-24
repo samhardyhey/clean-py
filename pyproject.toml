@@ -27,6 +27,20 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
 ]
 
+# Dependencies should be directly under [project], not under [project.dependencies]
+dependencies = [
+    "black==25.1.0",
+    "isort==6.0.1",
+    "jupyter==1.1.1",
+    "autoflake==2.3.1",
+    "notebook<7.0.0",
+    "jupyter_contrib_nbextensions==0.7.0",
+    "nbconvert<7.0.0",
+    "pytest==8.3.5",
+    "pytest-cov==4.1.0",
+    "typer[all]==0.9.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/samhardyhey/clean-py"
 Repository = "https://github.com/samhardyhey/clean-py.git"
@@ -34,18 +48,6 @@ Issues = "https://github.com/samhardyhey/clean-py/issues"
 
 [project.scripts]
 clean-py = "clean_py.cli:app"
-
-[project.dependencies]
-black = "==25.1.0"
-isort = "==6.0.1"
-jupyter = "==1.1.1"
-autoflake = "==2.3.1"
-notebook = "<7.0.0"
-jupyter_contrib_nbextensions = "==0.7.0"
-nbconvert = "<7.0.0"
-pytest = "==8.3.5"
-pytest-cov = "==4.1.0"
-typer = { version = "==0.9.0", extras = ["all"] }
 
 [project.optional-dependencies]
 dev = [
@@ -56,7 +58,7 @@ dev = [
 ]
 
 [tool.setuptools_scm]
-write_to = "clean_py/_version.py"
+write_to = "src/clean_py/_version.py"
 version_scheme = "post-release"
 local_scheme = "no-local-version"
 
@@ -77,3 +79,7 @@ line_length = 88
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "--cov=clean_py --cov-report=term-missing"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["clean_py"]

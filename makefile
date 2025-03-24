@@ -9,17 +9,17 @@ help: ## Display this help message
 setup-local-dev: ## Set up the development environment
 	pip install -e .
 
-test-local: setup-local-dev ## Run pytest for single environment testing
+test-local: ## Run pytest for single environment testing
 	pytest
 
 test-tox: ## Run tests across multiple Python environments using tox
 	tox
 
 test-coverage: ## Run tests with coverage report (local development only)
-	pytest --cov=clean_py --cov-report=term-missing
+	pytest --cov=src/clean_py --cov-report=term-missing
 
 dist-bundle-build: clean ## Build both source distribution and wheel distribution
-	python setup.py sdist bdist_wheel
+	python -m build
 
 publish-test: dist-bundle-build ## Build and publish package to TestPyPI
 	@echo "Publishing to TestPyPI..."
