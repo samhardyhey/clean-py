@@ -55,6 +55,7 @@ dev = [
     "tox==4.24.2",
     "twine==6.1.0",
     "setuptools_scm==8.0.0",
+    "tox==4.24.2",
 ]
 
 [tool.setuptools_scm]
