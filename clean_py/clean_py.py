@@ -7,7 +7,7 @@ from subprocess import run
 
 from autoflake import fix_code
 from black import DEFAULT_LINE_LENGTH, FileMode, NothingChanged, format_file_contents
-from isort import SortImports
+from isort import sort_code
 
 pool = Pool(cpu_count())
 
@@ -68,7 +68,7 @@ def clean_python_code(
             )
 
     if isort:
-        formatted_source = SortImports(file_contents=formatted_source).output
+        formatted_source = sort_code(formatted_source)
 
     if black:
         mode = FileMode(

@@ -8,12 +8,12 @@ long_description = (this_directory / "README.md").read_text()
 
 # Core dependencies - these are used by tox and when installing the package
 CORE_REQUIREMENTS = [
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "jupyter>=1.0.0",
-    "autoflake>=2.2.0",
-    "jupyter_contrib_nbextensions>=0.5.1",
-    "pytest>=7.0.1",
+    "black==25.1.0",
+    "isort==6.0.1",
+    "jupyter==1.1.1",
+    "autoflake==2.3.1",
+    "jupyter_contrib_nbextensions==0.7.0",
+    "pytest==8.3.5",
 ]
 
 # For development, try to read from requirements.txt if it exists
