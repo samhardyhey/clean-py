@@ -26,15 +26,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox tox-gh-actions
 
-    - name: Run tests
-      run: cd ./clean_py && tox
+      - name: Run tests
+        run: cd ./clean_py && tox
 
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v4
-      if: success()
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: true
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   quality:
     runs-on: ubuntu-latest
