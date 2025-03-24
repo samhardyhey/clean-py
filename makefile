@@ -1,6 +1,6 @@
 # .PHONY tells Make these are not real files/folders to check for,
 # but rather just names of our commands
-.PHONY: help test dist upload multi-test clean
+.PHONY: help test dist upload multi-test clean dev
 
 # Default target that prints all commands
 help:
@@ -10,9 +10,10 @@ help:
 	@echo "  dist        - Build both source distribution and wheel distribution"
 	@echo "  upload      - Upload the built distributions to PyPI"
 	@echo "  clean       - Remove all build artifacts and temporary files"
+	@echo "  dev         - Set up the development environment"
 
 # Run pytest for single environment testing
-test:
+test: dev
 	pytest
 
 # Run tests across multiple Python environments using tox
@@ -31,4 +32,12 @@ upload: dist
 
 # Remove all build artifacts and temporary files
 clean:
+	@echo "Cleaning up build artifacts and cache files..."
 	rm -rf dist/ build/ *.egg-info/ .pytest_cache/ venv/
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
+	@find . -type f -name "*.pyc" -exec rm -f {} +
+
+# Set up the development environment
+dev:
+	pip install -e .
+	pip install -r requirements.txt
