@@ -10,13 +10,13 @@ setup-local-dev: ## Set up the development environment
 	pip install -e .
 
 test-local: ## Run pytest for single environment testing
-	pytest
+	pytest tests
 
 test-tox: ## Run tests across multiple Python environments using tox
 	tox
 
 test-coverage: ## Run tests with coverage report (local development only)
-	pytest --cov=src/clean_py --cov-report=term-missing
+	pytest tests --cov=src/clean_py --cov-report=term-missing
 
 dist-bundle-build: clean ## Build both source distribution and wheel distribution
 	python -m build

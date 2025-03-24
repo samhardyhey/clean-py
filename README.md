@@ -46,6 +46,10 @@ clean_py path/to/dir -py True -isort True -black False -autoflake False
 4. After review and approval, merge to `dev`
 5. When ready for release, create a pull request from `dev` to `main`
 
+### Project Structure
+- `src/clean_py/` - Main package code
+- `tests/` - Test files
+
 ### Common Development Commands
 See the Makefile for common, useful dev commands.
 
