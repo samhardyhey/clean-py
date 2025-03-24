@@ -1,6 +1,6 @@
 # .PHONY tells Make these are not real files/folders to check for,
 # but rather just names of our commands
-.PHONY: help setup-local-dev test-local test-tox test-coverage dist-bundle-build dist-bundle-upload clean
+.PHONY: help setup-local-dev test-local test-tox test-coverage dist-bundle-build publish-test publish clean
 
 help: ## Display this help message
 	@echo "Available commands:"
@@ -22,8 +22,13 @@ test-coverage: ## Run tests with coverage report (local development only)
 dist-bundle-build: clean ## Build both source distribution and wheel distribution
 	python setup.py sdist bdist_wheel
 
-dist-bundle-upload: dist-bundle-build ## Upload the built distributions to PyPI
-	twine upload dist/*
+publish-test: dist ## Build and publish package to TestPyPI
+	@echo "Publishing to TestPyPI..."
+	python -m twine upload --repository testpypi dist/*
+
+publish: dist ## Build and publish package to PyPI
+	@echo "Publishing to PyPI..."
+	python -m twine upload dist/*
 
 clean: ## Remove all build artifacts and temporary files
 	@echo "Cleaning up build artifacts and cache files..."
