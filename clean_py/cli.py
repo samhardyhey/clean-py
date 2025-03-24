@@ -1,68 +1,111 @@
-import argparse
 import glob
 import logging
 from pathlib import Path
 
+import typer
+from rich.console import Console
+from rich.logging import RichHandler
+
 from .clean_py import clean_ipynb, clean_py
 
-logging.basicConfig(level=logging.INFO)
-parser = argparse.ArgumentParser(
-    prog="clean_py",
-    description="Auto-lint .py and .ipynb files with autoflake, isort and black",
+# Configure rich logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(rich_tracebacks=True)],
 )
-parser.add_argument("path", type=str, help="File or dir to clean")
-parser.add_argument(
-    "--py", type=bool, default=True, required=False, help="Apply to .py source"
+
+console = Console()
+app = typer.Typer(
+    name="clean-py",
+    help="Auto-lint .py and .ipynb files with autoflake, isort and black",
+    add_completion=False,
 )
-parser.add_argument("--ipynb", type=bool, default=True, help="Apply to .ipynb source")
-parser.add_argument(
-    "--autoflake", type=bool, default=True, help="Apply autoflake to source"
-)
-parser.add_argument("--isort", type=bool, default=True, help="Apply isort to source")
-parser.add_argument("--black", type=bool, default=True, help="Apply black to source")
-args = parser.parse_args()
 
 
-def main():
-    path = Path(args.path)
+@app.command()
+def main(
+    path: str = typer.Argument(..., help="File or directory to clean"),
+    py: bool = typer.Option(True, help="Apply to .py source"),
+    ipynb: bool = typer.Option(True, help="Apply to .ipynb source"),
+    autoflake: bool = typer.Option(True, help="Apply autoflake to source"),
+    isort: bool = typer.Option(True, help="Apply isort to source"),
+    black: bool = typer.Option(True, help="Apply black to source"),
+    verbose: bool = typer.Option(False, help="Enable verbose output"),
+):
+    """
+    Clean Python files and Jupyter notebooks using various code formatting tools.
+
+    The tool can process both individual files and entire directories recursively.
+    For Python files, it can apply autoflake, isort, and black formatting.
+    For Jupyter notebooks, it can also clear outputs and reset execution counts.
+    """
+    if verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    path = Path(path)
     if not path.exists():
-        raise ValueError("Provide a valid path to a file or directory")
+        console.print(f"[red]Error: Path '{path}' does not exist[/red]")
+        raise typer.Exit(1)
 
-    if path.is_dir():
-        # recursively apply to all .py source within dir
-        logging.info(f"Recursively cleaning directory: {path}")
-        if args.py:
-            for e in glob.iglob(f"{path.as_posix()}/**/*.py", recursive=True):
+    try:
+        if path.is_dir():
+            # recursively apply to all .py source within dir
+            logging.info(f"Recursively cleaning directory: {path}")
+            if py:
+                for e in glob.iglob(f"{path.as_posix()}/**/*.py", recursive=True):
+                    try:
+                        logging.info(f"Cleaning file: {e}")
+                        clean_py(e, autoflake, isort, black)
+                    except Exception as e:
+                        logging.error(f"Unable to clean file: {e}")
+                        if verbose:
+                            logging.exception("Detailed error:")
+            if ipynb:
+                # recursively apply to all .ipynb source within dir
+                for e in glob.iglob(f"{path.as_posix()}/**/*.ipynb", recursive=True):
+                    try:
+                        logging.info(f"Cleaning file: {e}")
+                        clean_ipynb(e, autoflake=autoflake, isort=isort, black=black)
+                    except Exception as e:
+                        logging.error(f"Unable to clean file: {e}")
+                        if verbose:
+                            logging.exception("Detailed error:")
+
+        elif path.is_file():
+            if py and path.suffix == ".py":
                 try:
-                    logging.info(f"Cleaning file: {e}")
-                    clean_py(e, args.autoflake, args.isort, args.black)
-                except Exception:
+                    logging.info(f"Cleaning file: {path}")
+                    clean_py(path, autoflake, isort, black)
+                except Exception as e:
                     logging.error(f"Unable to clean file: {e}")
-        if args.ipynb:
-            # recursively apply to all .ipynb source within dir
-            for e in glob.iglob(f"{path.as_posix()}/**/*.ipynb", recursive=True):
+                    if verbose:
+                        logging.exception("Detailed error:")
+
+            elif ipynb and path.suffix == ".ipynb":
                 try:
-                    logging.info(f"Cleaning file: {e}")
-                    clean_ipynb(e, args.autoflake, args.isort, args.black)
-                except Exception:
+                    logging.info(f"Cleaning file: {path}")
+                    clean_ipynb(path, autoflake=autoflake, isort=isort, black=black)
+                except Exception as e:
                     logging.error(f"Unable to clean file: {e}")
+                    if verbose:
+                        logging.exception("Detailed error:")
 
-    if path.is_file():
-        if args.py and path.suffix == ".py":
-            try:
-                logging.info(f"Cleaning file: {path}")
-                clean_py(path, args.autoflake, args.isort, args.black)
-            except Exception:
-                logging.error(f"Unable to clean file: {path}")
+            else:
+                console.print(
+                    f"[red]Error: Unable to clean {path} with current options[/red]"
+                )
+                raise typer.Exit(1)
 
-        elif args.ipynb and path.suffix == ".ipynb":
-            try:
-                logging.info(f"Cleaning file: {path}")
-                clean_ipynb(path, args.autoflake, args.isort, args.black)
-            except Exception:
-                logging.error(f"Unable to clean file: {path}")
+        console.print("[green]Cleaning completed successfully![/green]")
 
-        else:
-            raise ValueError(
-                f"Unable to clean {path} with args! Double check your args.."
-            )
+    except Exception as e:
+        console.print(f"[red]An error occurred: {e}[/red]")
+        if verbose:
+            logging.exception("Detailed error:")
+        raise typer.Exit(1)
+
+
+if __name__ == "__main__":
+    app()

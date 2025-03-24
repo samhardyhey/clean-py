@@ -8,9 +8,8 @@ help: ## Display this help message
 
 setup-local-dev: ## Set up the development environment
 	pip install -e .
-	pip install -r requirements.txt
 
-test-local: dev ## Run pytest for single environment testing
+test-local: setup-local-dev ## Run pytest for single environment testing
 	pytest
 
 test-tox: ## Run tests across multiple Python environments using tox
