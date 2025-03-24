@@ -30,7 +30,10 @@ except FileNotFoundError:
 
 setup(
     name="clean_py",
-    use_scm_version=True,
+    use_scm_version={
+        "local_scheme": "no-local-version",
+        "version_scheme": "post-release",
+    },
     setup_requires=['setuptools_scm'],
     url="https://github.com/samhardyhey/clean-py",
     author="Sam Hardy",
