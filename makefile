@@ -2,42 +2,28 @@
 # but rather just names of our commands
 .PHONY: help test dist upload multi-test clean dev
 
-# Default target that prints all commands
-help:
+help: ## Display this help message
 	@echo "Available commands:"
-	@echo "  test        - Run pytest for single environment testing"
-	@echo "  multi-test  - Run tests across multiple Python environments using tox"
-	@echo "  dist        - Build both source distribution and wheel distribution"
-	@echo "  upload      - Upload the built distributions to PyPI"
-	@echo "  clean       - Remove all build artifacts and temporary files"
-	@echo "  dev         - Set up the development environment"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-# Run pytest for single environment testing
-test: dev
+test-local: dev ## Run pytest for single environment testing
 	pytest
 
-# Run tests across multiple Python environments using tox
-multi-test:
+test-tox: ## Run tests across multiple Python environments using tox
 	tox
 
-# Build both source distribution and wheel distribution
-# Depends on clean to ensure fresh builds
-dist: clean
+dist: clean ## Build both source distribution and wheel distribution
 	python setup.py sdist bdist_wheel
 
-# Upload the built distributions to PyPI
-# Depends on dist to ensure we have the latest build
-upload: dist
+upload: dist ## Upload the built distributions to PyPI
 	twine upload dist/*
 
-# Remove all build artifacts and temporary files
-clean:
+clean: ## Remove all build artifacts and temporary files
 	@echo "Cleaning up build artifacts and cache files..."
-	rm -rf dist/ build/ *.egg-info/ .pytest_cache/ venv/
+	rm -rf dist/ build/ *.egg-info/ .pytest_cache/ venv/ .tox/
 	@find . -type d -name "__pycache__" -exec rm -rf {} +
 	@find . -type f -name "*.pyc" -exec rm -f {} +
 
-# Set up the development environment
-dev:
+setup-local-dev: ## Set up the development environment
 	pip install -e .
 	pip install -r requirements.txt
