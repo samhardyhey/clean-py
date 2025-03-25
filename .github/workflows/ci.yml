@@ -2,9 +2,12 @@ name: CI/CD
 
 on:
   push:
-    branches: [ '**' ]
+    branches: [ "main", "dev" ]
+    tags:
+      - 'v*'  # This will trigger on any tag starting with 'v'
   pull_request:
-    branches: [ '**' ]
+    branches: [ "main", "dev" ]
+  workflow_dispatch:  # This enables manual triggering
 
 jobs:
   test:
