@@ -7,7 +7,13 @@ help: ## Display this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 setup-local-dev: ## Set up the development environment
-	pip install -e .
+	@if [ ! -d "venv" ]; then \
+		echo "Creating Python virtual environment..."; \
+		python -m venv venv; \
+	fi
+	@echo "Installing package in development mode..."
+	@./venv/bin/pip install -e .
+	@echo "\nSetup complete! To activate the virtual environment, run:\n\n    source venv/bin/activate\n"
 
 test-local: ## Run pytest for single environment testing
 	pytest tests

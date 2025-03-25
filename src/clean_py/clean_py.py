@@ -5,6 +5,7 @@ from multiprocessing.dummy import Pool
 from pathlib import Path
 from subprocess import run
 import logging
+from typing import List, Dict, Any, Union
 
 from autoflake import fix_code
 from black import DEFAULT_LINE_LENGTH, FileMode, NothingChanged, format_file_contents
@@ -13,7 +14,15 @@ from isort import code
 pool = Pool(cpu_count())
 
 
-def remove_duplicate_cells(cells):
+def remove_duplicate_cells(cells: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove duplicate cells from a Jupyter notebook.
+
+    Args:
+        cells: List of notebook cell dictionaries.
+
+    Returns:
+        List of unique cells with duplicates removed.
+    """
     cell_set_strings = []
     cell_set = []
     for e in cells:
@@ -24,11 +33,27 @@ def remove_duplicate_cells(cells):
     return cell_set
 
 
-def remove_empty_cells(cells):
+def remove_empty_cells(cells: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove empty cells from a Jupyter notebook.
+
+    Args:
+        cells: List of notebook cell dictionaries.
+
+    Returns:
+        List of cells with empty cells removed.
+    """
     return [e for e in cells if len(e["source"]) > 2]
 
 
-def remove_magics(source):
+def remove_magics(source: str) -> str:
+    """Remove Jupyter magic commands from cell source code.
+
+    Args:
+        source: Cell source code as string.
+
+    Returns:
+        Source code with magic commands removed.
+    """
     # check for '%' in first token of each line
     non_magic_source = []
     # magics, as well as source queries
@@ -44,8 +69,24 @@ def remove_magics(source):
 
 
 def clean_python_code(
-    python_source, isort=True, black=True, autoflake=True, is_notebook_cell=False
-):
+    python_source: str,
+    isort: bool = True,
+    black: bool = True,
+    autoflake: bool = True,
+    is_notebook_cell: bool = False,
+) -> str:
+    """Clean Python source code using various formatting tools.
+
+    Args:
+        python_source: Python source code to clean.
+        isort: Whether to sort imports using isort.
+        black: Whether to format code using black.
+        autoflake: Whether to remove unused imports using autoflake.
+        is_notebook_cell: Whether the source is from a notebook cell.
+
+    Returns:
+        Cleaned Python source code.
+    """
     # run source code string through autoflake, isort, and black
     formatted_source = python_source
 
@@ -90,36 +131,62 @@ def clean_python_code(
     return formatted_source
 
 
-def create_file(file_path, contents):
+def create_file(file_path: Path, contents: str) -> None:
+    """Create or overwrite a file with given contents.
+
+    Args:
+        file_path: Path to the file.
+        contents: Contents to write to the file.
+    """
     file_path.touch()
-    file_path.open("w", encoding="utf-8").write(contents)
+    with file_path.open("w", encoding="utf-8") as f:
+        f.write(contents)
 
 
-def clean_py(py_file_path, autoflake=True, isort=True, black=True):
-    # load, clean and write .py source, write cleaned file back to disk
+def clean_py(py_file_path: Union[str, Path], autoflake: bool = True, isort: bool = True, black: bool = True) -> None:
+    """Clean a Python file using various formatting tools.
+
+    Args:
+        py_file_path: Path to the Python file.
+        autoflake: Whether to remove unused imports using autoflake.
+        isort: Whether to sort imports using isort.
+        black: Whether to format code using black.
+    """
+    py_file_path = Path(py_file_path)
     with open(py_file_path, "r") as file:
         source = file.read()
 
-    clean_lines = clean_python_code("".join(source))
-    create_file(Path(py_file_path), clean_lines)
+    clean_lines = clean_python_code(source, autoflake=autoflake, isort=isort, black=black)
+    create_file(py_file_path, clean_lines)
 
 
-def clear_ipynb_output(ipynb_file_path):
-    # clear cell outputs, reset cell execution count of each cell in a jupyer notebook
+def clear_ipynb_output(ipynb_file_path: Union[str, Path]) -> None:
+    """Clear cell outputs and reset execution counts in a Jupyter notebook.
+
+    Args:
+        ipynb_file_path: Path to the notebook file.
+    """
     run(
         (
             "jupyter",
             "nbconvert",
             "--ClearOutputPreprocessor.enabled=True",
             "--inplace",
-            ipynb_file_path,
+            str(ipynb_file_path),
         ),
         check=True,
     )
 
 
-def clean_ipynb_cell(cell_dict):
-    # clean a single cell within a jupyter notebook
+def clean_ipynb_cell(cell_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Clean a single Jupyter notebook cell.
+
+    Args:
+        cell_dict: Dictionary containing cell data.
+
+    Returns:
+        Cleaned cell dictionary.
+    """
     if cell_dict["cell_type"] != "code":
         return cell_dict
     try:
@@ -148,16 +215,29 @@ def clean_ipynb_cell(cell_dict):
 
 
 def clean_ipynb(
-    ipynb_file_path, clear_output=True, autoflake=True, isort=True, black=True
-):
-    # load, clean and write .ipynb source in-place, back to original file
+    ipynb_file_path: Union[str, Path],
+    clear_output: bool = True,
+    autoflake: bool = True,
+    isort: bool = True,
+    black: bool = True,
+) -> None:
+    """Clean a Jupyter notebook file.
+
+    Args:
+        ipynb_file_path: Path to the notebook file.
+        clear_output: Whether to clear cell outputs.
+        autoflake: Whether to remove unused imports using autoflake.
+        isort: Whether to sort imports using isort.
+        black: Whether to format code using black.
+    """
+    ipynb_file_path = Path(ipynb_file_path)
     if clear_output:
         clear_ipynb_output(ipynb_file_path)
 
     with open(ipynb_file_path) as ipynb_file:
         ipynb_dict = load(ipynb_file)
 
-    # mulithread the map operation
+    # multithread the map operation
     processed_cells = pool.map(clean_ipynb_cell, ipynb_dict["cells"])
     ipynb_dict["cells"] = processed_cells
 
