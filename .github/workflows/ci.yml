@@ -42,10 +42,10 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies
+    - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e . ".[dev]"
+        python -m pip install build twine
 
     - name: Build and publish to TestPyPI
       env:
@@ -70,10 +70,10 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies
+    - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .
+        python -m pip install build twine
 
     - name: Build and publish to PyPI
       env:
@@ -107,12 +107,15 @@ jobs:
       env:
         TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
-        # Keep latest version from each major release and last 3 dev versions
+        echo "Starting cleanup of old TestPyPI versions..."
+        echo "Will keep major versions (*.0.0) and last 3 versions"
         clean-pypi-index clean-py \
           --keep-pattern "*.0.0" \
           --keep-last-n 3 \
           --index-url https://test.pypi.org/simple/ \
-          --token $TEST_PYPI_TOKEN
+          --token $TEST_PYPI_TOKEN \
+          --verbose
+        echo "TestPyPI cleanup completed"
 
   cleanup-pypi:
     needs: [publish-pypi]
@@ -135,8 +138,11 @@ jobs:
       env:
         PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        # Keep all major versions and last 5 minor versions
+        echo "Starting cleanup of old PyPI versions..."
+        echo "Will keep major versions (*.0.0) and last 5 versions"
         clean-pypi-index clean-py \
           --keep-pattern "*.0.0" \
           --keep-last-n 5 \
-          --token $PYPI_TOKEN
+          --token $PYPI_TOKEN \
+          --verbose
+        echo "PyPI cleanup completed"
