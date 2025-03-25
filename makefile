@@ -51,9 +51,21 @@ tag-release: ## Create and push a new release tag (usage: make tag-release VERSI
 	git tag -a v$(VERSION) -m "Release v$(VERSION)"
 	git push origin v$(VERSION)
 
-version-history: ## Show version history and help with semantic versioning
+version-history-pypi: ## Show version history from PyPI and help with semantic versioning
 	@echo "Current versions on PyPI:"
 	@curl -s https://pypi.org/pypi/clean-py/json | grep -o '"version":"[^"]*"' | cut -d'"' -f4 | sort -V
+	@echo "\nGit tags:"
+	@git tag -l | sort -V
+	@echo "\nSemantic Versioning Guide:"
+	@echo "  MAJOR.MINOR.PATCH[-PRERELEASE]"
+	@echo "  - MAJOR: Breaking changes (e.g., 1.0.0 -> 2.0.0)"
+	@echo "  - MINOR: New features, no breaking changes (e.g., 1.0.0 -> 1.1.0)"
+	@echo "  - PATCH: Bug fixes only (e.g., 1.0.0 -> 1.0.1)"
+	@echo "  - PRERELEASE: Development versions (e.g., 1.0.0-alpha.1)"
+
+version-history-testpypi: ## Show version history from TestPyPI and help with semantic versioning
+	@echo "Current versions on TestPyPI:"
+	@curl -s https://test.pypi.org/pypi/clean-py/json | grep -o '"version":"[^"]*"' | cut -d'"' -f4 | sort -V
 	@echo "\nGit tags:"
 	@git tag -l | sort -V
 	@echo "\nSemantic Versioning Guide:"
@@ -67,7 +79,7 @@ cleanup-testpypi: ## Clean up old versions from TestPyPI (requires PYPI_CLEANUP_
 	@echo "Cleaning up TestPyPI versions..."
 	@read -p "Enter PyPI username: " username; \
 	pypi-cleanup -p clean-py \
-		-r '.*\.(dev|post|a|b|rc)\d+.*' \
+		-r '.*-dev\.[4-9]\d*$$|.*\.(post|a|b|rc)\d+.*' \
 		--do-it \
 		-y \
 		-t https://test.pypi.org/ \
