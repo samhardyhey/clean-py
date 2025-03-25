@@ -47,9 +47,9 @@ tag-release: ## Create and push a new release tag (usage: make tag-release VERSI
 		echo "Error: VERSION is required. Usage: make tag-release VERSION=1.2.3"; \
 		exit 1; \
 	fi
-	@echo "Creating tag v$(VERSION)..."
-	git tag -a v$(VERSION) -m "Release v$(VERSION)"
-	git push origin v$(VERSION)
+	@echo "Creating tag $(VERSION)..."
+	git tag -a $(VERSION) -m "Release $(VERSION)"
+	git push origin $(VERSION)
 
 version-history-pypi: ## Show version history from PyPI and help with semantic versioning
 	@echo "Current versions on PyPI:"
