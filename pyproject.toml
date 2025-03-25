@@ -61,7 +61,7 @@ dev = [
 
 [tool.setuptools_scm]
 write_to = "src/clean_py/_version.py"
-version_scheme = "post-release"
+version_scheme = "python-simplified-semver"
 local_scheme = "no-local-version"
 
 [tool.black]
