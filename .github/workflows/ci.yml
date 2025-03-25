@@ -7,30 +7,30 @@ on:
     branches: [ '**' ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+  # test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ["3.9", "3.10", "3.11", "3.12"]
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for all tags and branches
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Fetch all history for all tags and branches
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -e ".[dev]"
 
-      - name: Run tests
-        run: tox
+  #     - name: Run tests
+  #       run: tox
 
   publish-testpypi:
     needs: [test]
@@ -91,68 +91,3 @@ jobs:
         twine check dist/*
         echo "Publishing version: $(python setup.py --version) to PyPI"
         python -m twine upload --verbose dist/*
-
-  cleanup-testpypi:
-    needs: [publish-testpypi]
-    if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch all history for all tags and branches
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-
-    - name: Install cleanup tools
-      run: |
-        python -m pip install --upgrade pip
-        pip install clean-pypi-index
-
-    - name: Cleanup old TestPyPI versions
-      env:
-        TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      run: |
-        echo "Starting cleanup of old TestPyPI versions..."
-        echo "Will keep major versions (*.0.0) and last 3 versions"
-        clean-pypi-index clean-py \
-          --keep-pattern "*.0.0" \
-          --keep-last-n 3 \
-          --index-url https://test.pypi.org/simple/ \
-          --token $TEST_PYPI_TOKEN \
-          --verbose
-        echo "TestPyPI cleanup completed"
-
-  cleanup-pypi:
-    needs: [publish-pypi]
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch all history for all tags and branches
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-
-    - name: Install cleanup tools
-      run: |
-        python -m pip install --upgrade pip
-        pip install clean-pypi-index
-
-    - name: Cleanup old PyPI versions
-      env:
-        PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        echo "Starting cleanup of old PyPI versions..."
-        echo "Will keep major versions (*.0.0) and last 5 versions"
-        clean-pypi-index clean-py \
-          --keep-pattern "*.0.0" \
-          --keep-last-n 5 \
-          --token $PYPI_TOKEN \
-          --verbose
-        echo "PyPI cleanup completed"

@@ -1,6 +1,6 @@
 # .PHONY tells Make these are not real files/folders to check for,
 # but rather just names of our commands
-.PHONY: help setup-local-dev test-local test-tox test-coverage dist-bundle-build publish-test publish clean tag-release version-history
+.PHONY: help setup-local-dev test-local test-tox test-coverage dist-bundle-build publish-test publish clean tag-release version-history cleanup-testpypi cleanup-pypi
 
 help: ## Display this help message
 	@echo "Available commands:"
@@ -62,4 +62,25 @@ version-history: ## Show version history and help with semantic versioning
 	@echo "  - MINOR: New features, no breaking changes (e.g., 1.0.0 -> 1.1.0)"
 	@echo "  - PATCH: Bug fixes only (e.g., 1.0.0 -> 1.0.1)"
 	@echo "  - PRERELEASE: Development versions (e.g., 1.0.0-alpha.1)"
+
+cleanup-testpypi: ## Clean up old versions from TestPyPI (requires PYPI_CLEANUP_PASSWORD env var)
+	@echo "Cleaning up TestPyPI versions..."
+	@read -p "Enter PyPI username: " username; \
+	pypi-cleanup -p clean-py \
+		-r '.*\.(dev|post|a|b|rc)\d+.*' \
+		--do-it \
+		-y \
+		-t https://test.pypi.org/ \
+		-u $$username \
+		-v
+
+cleanup-pypi: ## Clean up old versions from PyPI (requires PYPI_CLEANUP_PASSWORD env var)
+	@echo "Cleaning up PyPI versions..."
+	@read -p "Enter PyPI username: " username; \
+	pypi-cleanup -p clean-py \
+		-r '.*\.(dev|post|a|b|rc)\d+.*' \
+		--do-it \
+		-y \
+		-u $$username \
+		-v
 
