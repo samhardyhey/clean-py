@@ -138,3 +138,4 @@ states/
 # Add src-specific patterns
 src/*.egg-info/
 src/*.egg
+_version.py

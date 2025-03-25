@@ -1,6 +1,7 @@
 import glob
 import logging
 from pathlib import Path
+import json
 
 import typer
 from rich.console import Console
@@ -49,59 +50,81 @@ def main(
         console.print(f"[red]Error: Path '{path}' does not exist[/red]")
         raise typer.Exit(1)
 
+    has_errors = False
     try:
-        if path.is_dir():
-            # recursively apply to all .py source within dir
-            logging.info(f"Recursively cleaning directory: {path}")
-            if py:
-                for e in glob.iglob(f"{path.as_posix()}/**/*.py", recursive=True):
-                    try:
-                        logging.info(f"Cleaning file: {e}")
-                        clean_py(e, autoflake, isort, black)
-                    except Exception as e:
-                        logging.error(f"Unable to clean file: {e}")
-                        if verbose:
-                            logging.exception("Detailed error:")
-            if ipynb:
-                # recursively apply to all .ipynb source within dir
-                for e in glob.iglob(f"{path.as_posix()}/**/*.ipynb", recursive=True):
-                    try:
-                        logging.info(f"Cleaning file: {e}")
-                        clean_ipynb(e, autoflake=autoflake, isort=isort, black=black)
-                    except Exception as e:
-                        logging.error(f"Unable to clean file: {e}")
-                        if verbose:
-                            logging.exception("Detailed error:")
-
-        elif path.is_file():
+        if path.is_file():
             if py and path.suffix == ".py":
                 try:
                     logging.info(f"Cleaning file: {path}")
                     clean_py(path, autoflake, isort, black)
                 except Exception as e:
-                    logging.error(f"Unable to clean file: {e}")
+                    console.print(f"[yellow]Warning: Unable to clean file {path}: {e}[/yellow]")
                     if verbose:
                         logging.exception("Detailed error:")
+                    has_errors = True
 
             elif ipynb and path.suffix == ".ipynb":
                 try:
                     logging.info(f"Cleaning file: {path}")
+                    # Try to load the notebook first to validate JSON
+                    with open(path) as f:
+                        try:
+                            json.load(f)  # Use json.load instead of load to be explicit
+                        except json.JSONDecodeError:
+                            console.print(f"[red]Error: Invalid notebook format in {path}[/red]")
+                            raise typer.Exit(code=1)
                     clean_ipynb(path, autoflake=autoflake, isort=isort, black=black)
+                except json.JSONDecodeError:
+                    console.print(f"[red]Error: Invalid notebook format in {path}[/red]")
+                    raise typer.Exit(code=1)
                 except Exception as e:
-                    logging.error(f"Unable to clean file: {e}")
+                    console.print(f"[yellow]Warning: Unable to clean file {path}: {e}[/yellow]")
                     if verbose:
                         logging.exception("Detailed error:")
+                    has_errors = True
 
             else:
                 console.print(
-                    f"[red]Error: Unable to clean {path} with current options[/red]"
+                    f"[yellow]Warning: Skipping {path} (unsupported file type)[/yellow]"
                 )
-                raise typer.Exit(1)
 
-        console.print("[green]Cleaning completed successfully![/green]")
+        else:  # path is a directory
+            for file_path in path.rglob("*"):
+                if py and file_path.suffix == ".py":
+                    try:
+                        logging.info(f"Cleaning file: {file_path}")
+                        clean_py(file_path, autoflake, isort, black)
+                    except Exception as e:
+                        console.print(f"[yellow]Warning: Unable to clean file {file_path}: {e}[/yellow]")
+                        if verbose:
+                            logging.exception("Detailed error:")
+                        has_errors = True
+
+                elif ipynb and file_path.suffix == ".ipynb":
+                    try:
+                        logging.info(f"Cleaning file: {file_path}")
+                        # Try to load the notebook first to validate JSON
+                        with open(file_path) as f:
+                            try:
+                                json.load(f)  # Use json.load instead of load to be explicit
+                            except json.JSONDecodeError:
+                                console.print(f"[yellow]Warning: Invalid notebook format in {file_path}[/yellow]")
+                                has_errors = True
+                                continue
+                        clean_ipynb(file_path, autoflake=autoflake, isort=isort, black=black)
+                    except Exception as e:
+                        console.print(f"[yellow]Warning: Unable to clean file {file_path}: {e}[/yellow]")
+                        if verbose:
+                            logging.exception("Detailed error:")
+                        has_errors = True
+
+        if has_errors:
+            console.print("[yellow]Cleaning completed with some warnings.[/yellow]")
+        else:
+            console.print("[green]Cleaning completed successfully![/green]")
 
     except Exception as e:
-        console.print(f"[red]An error occurred: {e}[/red]")
+        console.print(f"[red]Error: An unexpected error occurred: {e}[/red]")
         if verbose:
             logging.exception("Detailed error:")
         raise typer.Exit(1)

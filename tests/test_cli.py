@@ -63,3 +63,56 @@ def test_cli_invalid_path():
     result = runner.invoke(app, ["nonexistent_path"])
     assert result.exit_code == 1
     assert "Error: Path 'nonexistent_path' does not exist" in result.stdout
+
+def test_cli_help():
+    """Test CLI help command"""
+    runner = CliRunner()
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    # Check for presence of key help text elements
+    assert "main [OPTIONS] PATH" in result.stdout
+    assert "File or directory to clean" in result.stdout
+
+def test_cli_options_py_only():
+    """Test CLI with Python-only option"""
+    runner = CliRunner()
+    result = runner.invoke(app, [str(TEST_FILES_DIR), "--py", "--no-ipynb"])
+    assert result.exit_code == 0
+
+def test_cli_options_ipynb_only():
+    """Test CLI with Jupyter-only option"""
+    runner = CliRunner()
+    result = runner.invoke(app, [str(TEST_FILES_DIR), "--no-py", "--ipynb"])
+    assert result.exit_code == 0
+
+def test_cli_options_no_autoflake():
+    """Test CLI with autoflake disabled"""
+    runner = CliRunner()
+    result = runner.invoke(app, [str(TEST_PY_FILE), "--no-autoflake"])
+    assert result.exit_code == 0
+
+def test_cli_options_no_isort():
+    """Test CLI with isort disabled"""
+    runner = CliRunner()
+    result = runner.invoke(app, [str(TEST_PY_FILE), "--no-isort"])
+    assert result.exit_code == 0
+
+def test_cli_options_no_black():
+    """Test CLI with black disabled"""
+    runner = CliRunner()
+    result = runner.invoke(app, [str(TEST_PY_FILE), "--no-black"])
+    assert result.exit_code == 0
+
+def test_cli_verbose():
+    """Test CLI with verbose output"""
+    runner = CliRunner()
+    result = runner.invoke(app, [str(TEST_PY_FILE), "--verbose"])
+    assert result.exit_code == 0
+
+def test_cli_invalid_python_file():
+    """Test CLI with invalid Python file"""
+    invalid_py = TEST_FILES_DIR / "invalid.py"
+    invalid_py.write_text("def invalid_syntax:")  # Invalid Python syntax
+    runner = CliRunner()
+    result = runner.invoke(app, [str(invalid_py)])
+    assert result.exit_code == 0  # Should not fail on invalid syntax

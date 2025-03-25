@@ -4,6 +4,7 @@ from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool
 from pathlib import Path
 from subprocess import run
+import logging
 
 from autoflake import fix_code
 from black import DEFAULT_LINE_LENGTH, FileMode, NothingChanged, format_file_contents
@@ -48,24 +49,29 @@ def clean_python_code(
     # run source code string through autoflake, isort, and black
     formatted_source = python_source
 
+    # For notebook cells, only apply black formatting to preserve imports
+    if is_notebook_cell:
+        if black:
+            mode = FileMode(
+                line_length=DEFAULT_LINE_LENGTH,
+                is_pyi=False,
+                string_normalization=True,
+            )
+            with contextlib.suppress(NothingChanged):
+                formatted_source = format_file_contents(
+                    formatted_source, fast=True, mode=mode
+                )
+        return formatted_source
+
+    # For regular Python files, apply all formatters
     if autoflake:
-        if is_notebook_cell:
-            # do not remove unused imports (RE: notebook cell dependencies)
-            formatted_source = fix_code(
-                formatted_source,
-                expand_star_imports=True,
-                remove_all_unused_imports=False,
-                remove_duplicate_keys=True,
-                remove_unused_variables=True,
-            )
-        else:
-            formatted_source = fix_code(
-                formatted_source,
-                expand_star_imports=True,
-                remove_all_unused_imports=True,
-                remove_duplicate_keys=True,
-                remove_unused_variables=True,
-            )
+        formatted_source = fix_code(
+            formatted_source,
+            expand_star_imports=True,
+            remove_all_unused_imports=True,
+            remove_duplicate_keys=True,
+            remove_unused_variables=True,
+        )
 
     if isort:
         formatted_source = code(formatted_source)
@@ -80,6 +86,7 @@ def clean_python_code(
             formatted_source = format_file_contents(
                 formatted_source, fast=True, mode=mode
             )
+
     return formatted_source
 
 
@@ -116,19 +123,27 @@ def clean_ipynb_cell(cell_dict):
     if cell_dict["cell_type"] != "code":
         return cell_dict
     try:
-        clean_lines = clean_python_code(
-            "".join(cell_dict["source"]), is_notebook_cell=True
-        ).split("\n")
+        # Handle both string and list source inputs
+        source = cell_dict["source"]
+        if isinstance(source, list):
+            source = "".join(source)
 
-        if len(clean_lines) == 1 and clean_lines[0] == "":
-            clean_lines = []
-        else:
-            clean_lines[:-1] = [clean_line + "\n" for clean_line in clean_lines[:-1]]
+        # Preserve imports by setting is_notebook_cell=True
+        clean_source = clean_python_code(source, is_notebook_cell=True)
+
+        # Split into lines and ensure each line (except last) ends with newline
+        clean_lines = clean_source.split("\n")
+        if clean_lines[-1] == "":
+            clean_lines = clean_lines[:-1]
+        if clean_lines:
+            clean_lines = [line + "\n" for line in clean_lines[:-1]] + [clean_lines[-1]]
+
         cell_dict["source"] = clean_lines
         return cell_dict
 
-    except Exception:
+    except Exception as e:
         # return original cell dict otherwise
+        logging.error(f"Error cleaning cell: {e}")
         return cell_dict
 
 
