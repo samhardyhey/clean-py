@@ -85,3 +85,58 @@ jobs:
         twine check dist/*
         echo "Publishing version: $(python setup.py --version) to PyPI"
         python -m twine upload --verbose dist/*
+
+  cleanup-testpypi:
+    needs: [publish-testpypi]
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install cleanup tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install clean-pypi-index
+
+    - name: Cleanup old TestPyPI versions
+      env:
+        TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        # Keep latest version from each major release and last 3 dev versions
+        clean-pypi-index clean-py \
+          --keep-pattern "*.0.0" \
+          --keep-last-n 3 \
+          --index-url https://test.pypi.org/simple/ \
+          --token $TEST_PYPI_TOKEN
+
+  cleanup-pypi:
+    needs: [publish-pypi]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install cleanup tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install clean-pypi-index
+
+    - name: Cleanup old PyPI versions
+      env:
+        PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        # Keep all major versions and last 5 minor versions
+        clean-pypi-index clean-py \
+          --keep-pattern "*.0.0" \
+          --keep-last-n 5 \
+          --token $PYPI_TOKEN
