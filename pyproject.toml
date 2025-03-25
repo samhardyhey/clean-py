@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm>=8.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clean-py"
+dynamic = ["version"]
+description = "CLI tool for automated Python code cleanup and standardization"
+readme = "README.md"
+requires-python = ">=3.6"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Sam Hardy", email = "samhardyhey@gmail.com" }
+]
+keywords = ["python", "code-formatting", "jupyter", "notebook", "black", "isort", "autoflake"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+# Dependencies should be directly under [project], not under [project.dependencies]
+dependencies = [
+    "black==25.1.0",
+    "isort==6.0.1",
+    "jupyter==1.1.1",
+    "autoflake==2.3.1",
+    "notebook<7.0.0",
+    "jupyter_contrib_nbextensions==0.7.0",
+    "nbconvert<7.0.0",
+    "pytest==8.3.5",
+    "pytest-cov==4.1.0",
+    "typer[all]==0.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/samhardyhey/clean-py"
+Repository = "https://github.com/samhardyhey/clean-py.git"
+Issues = "https://github.com/samhardyhey/clean-py/issues"
+
+[project.scripts]
+clean-py = "clean_py.cli:app"
+
+[project.optional-dependencies]
+dev = [
+    "build==1.2.2.post1",
+    "tox==4.24.2",
+    "twine==6.1.0",
+    "setuptools_scm==8.0.0",
+    "tox==4.24.2",
+    "pypi-cleanup==0.1.8",
+]
+
+[tool.setuptools_scm]
+write_to = "src/clean_py/_version.py"
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+
+[tool.black]
+line-length = 88
+target-version = ['py36']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--cov=clean_py --cov-report=term-missing"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["clean_py"]
