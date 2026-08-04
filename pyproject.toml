@@ -29,7 +29,7 @@ classifiers = [
 
 # Dependencies should be directly under [project], not under [project.dependencies]
 dependencies = [
-    "black==25.1.0",
+    "black==26.3.1",
     "isort==6.0.1",
     "jupyter==1.1.1",
     "autoflake==2.3.1",
